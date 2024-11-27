@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strømpris</title>
+  <link rel="stylesheet" href="styles.css">
+    <link rel="icon" sizes="512x512" href="logo.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0F0F0F">
+</head>
+
+<header id="page-title">Strømpris</header>
+<div id="zone-container" class="container">
+    <h2 id="zone-name">Velg en sone...</h2>
+    <canvas id="priceChart"></canvas>
+  </div>
+  <body>
+    <div id="price-container" class="container">
+      <h2 id="current-price">Strømpris nå: Laster...</h2>
+    </div>
+
+    <div id="price-container" class="container">
+        <h3 id="average-price">Gjennomsnittpris i dag: Laster...</h3>
+      </div>
+  
+  <button id="zone-button">Velg Sone</button>
+
+  <div id="zone-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Velg sone</h2>
+      <ul id="zone-list">
+        <li data-zone="NO1">Østlandet (NO1)</li>
+        <li data-zone="NO2">Sørlandet (NO2)</li>
+        <li data-zone="NO3">Midt-Norge (NO3)</li>
+        <li data-zone="NO4">Nord-Norge (NO4)</li>
+        <li data-zone="NO5">Vestlandet (NO5)</li>
+      </ul>
+      <button id="close-modal">Lukk</button>
+    </div>
+  </div>
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+  <footer id="footer-text">
+    Made with ❤ in chilly Sandnes  by
+    <a href="mailto:david.kvindesland+strompris@gmail.com">@DavidKvi</a>
+  </footer>
+  
+</body>
+
+</html>
