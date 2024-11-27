@@ -1,36 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+/* Generelle stilinnstillinger */
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #121212; /* Primary Background */
-  color: #E0E0E0; /* Primary Text */
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    margin: 0;
+    padding: 0;
+    background-color: #0F0F0F; /* Hovedbakgrunnsfarge (rik svart) */
+    color: #F5F5F5; /* Primær tekstfarge (myk hvit) */
+    font-family: 'IBM Plex Sans', sans-serif; /* Standard font */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-#charts-container {
-  width: 90%;
-  margin: 20px auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+/* Tittel på siden ("Strømpris!") */
+#page-title {
+    width: 100%;
+    text-align: center;
+    font-size: 3rem; /* Stor skrift for logoeffekt */
+    font-weight: 700; /* Fet skrift for fremheving */
+    font-family: 'Orbitron', sans-serif; /* Futuristisk font */
+    color: #FFA726; /* Lys oransje for oppmerksomhet */
+    background-color: #1A1A1A; /* Sekundær bakgrunnsfarge */
+    padding: 20px 0; /* Legg til plass rundt teksten */
+    margin-bottom: 20px; /* Avstand under tittelen */
+    border-bottom: 1px solid #262626; /* Subtil skillelinje */
+    letter-spacing: 2px; /* Litt ekstra avstand mellom bokstaver */
+    text-transform: uppercase; /* Gjør teksten store bokstaver */
+
+    /* Svakt lysende effekt for tittelen */
+    text-shadow:
+        0 0 5px #FFA726,
+        0 0 10px #FF8F00,
+        0 0 15px #FF8F00;
 }
 
-.chart-wrapper {
-  background-color: #1E1E1E; /* Secondary Background */
-  border: 1px solid #2C2C2C; /* Light Divider */
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
+/* Generell container-stil */
+.container {
+    width: 95%;
+    max-width: 800px;
+    background-color: #1A1A1A; /* Sekundær bakgrunnsfarge */
+    border: 1px solid #262626; /* Subtil kantlinje */
+    border-radius: 8px; /* Runde hjørner */
+    margin-top: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center; /* Sentrer innhold */
 }
 
-.chart-wrapper h2 {
-  color: #B0B0B0; /* Secondary Text */
-  margin-bottom: 10px;
+/* Nåværende strømpris */
+#current-price {
+    font-size: 1.5rem; /* Stor tekst for fokus */
+    font-weight: bold;
+    color: #FFA726; /* Oransje farge for fremheving */
+    margin: 10px 0;
+}
+
+/* Gjennomsnittlig strømpris */
+#average-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #FFCC80; /* Mykere oransje for sekundær info */
+    margin: 10px 0;
+}
+
+/* Diagramcontainer */
+#chart-container {
+    width: 95%; /* Tilpass bredde til foreldreelementet */
+    max-width: 800px;
+    height: auto; /* Dynamisk høyde */
+    margin: 20px auto;
+    background-color: #1A1A1A; /* Sekundær bakgrunnsfarge */
+    border: 1px solid #333333; /* Tydelig kantlinje */
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 canvas {
-  width: 100%;
-  height: 400px;
+    width: 100%; /* Full bredde */
+    aspect-ratio: 16 / 9; /* Behold 16:9-forholdet */
+    display: block;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 15, 15, 0.9); /* Mørkt gjennomsiktig bakgrunn */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Over andre elementer */
+    visibility: visible; /* Synlig når modal er aktiv */
+    opacity: 1; /* Fullt synlig */
+    transition: visibility 0s, opacity 0.3s ease; /* Myk fade-in/fade-out */
+  }
+  
+  /* Skjult modal */
+  .modal.hidden {
+    visibility: hidden; /* Gjør modal usynlig */
+    opacity: 0; /* Gjør modal gjennomsiktig */
+    display: none; /* Fjern elementet fra layout */
+  }
+  
+  .modal-content {
+    background-color: #1A1A1A; /* Bakgrunnsfarge */
+    padding: 20px;
+    border-radius: 12px; /* Runde hjørner */
+    text-align: center;
+    color: #F5F5F5; /* Tekstfarge */
+    width: 90%;
+    max-width: 500px; /* Maks bredde */
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7); /* Svak skygge */
+  }
+  
+
+/* Liste over soner */
+#zone-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+#zone-list li {
+    padding: 15px;
+    cursor: pointer;
+    color: #03DAC6; /* Lys cyan for interaktivitet */
+    border: 1px solid #262626;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 1.2rem;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#zone-list li:hover {
+    background-color: #272727;
+    transform: scale(1.05);
+}
+
+/* Lukk-knapp */
+#close-modal {
+    background-color: #FF5722; /* Lys oransje */
+    color: #121212;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#close-modal:hover {
+    background-color: #FF9100; /* Lysere oransje ved hover */
+}
+
+/* Footer-tekst (laget med kjærlighet) */
+#footer-text {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: #A5A5A5;
+    text-align: center;
+    z-index: 10;
+}
+
+#footer-text a {
+    color: #FFA726;
+    text-decoration: none;
+}
+
+#footer-text a:hover {
+    color: #FFCC80;
+}
+
+/* Velg sone-knapp */
+#zone-button {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(90deg, #FF6F00, #FF8F00);
+    color: #F5F5F5;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    z-index: 10;
+}
+
+#zone-button:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+#zone-button:active {
+    transform: translateX(-50%) scale(0.95);
 }

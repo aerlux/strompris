@@ -1,132 +1,159 @@
-let chart;
+let chart; // Global variabel for å lagre diagrammet
 
-async function fetchPrices(zone, dayType) {
+// Hent strømpriser fra API
+async function fetchPrices(zone) {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // Legger til ledende null
   const day = String(today.getDate()).padStart(2, "0");
-  const tomorrow = String(today.getDate() + 1).padStart(2, "0");
-
-  const targetDay = dayType === "Tomorrow" ? tomorrow : day;
-  const apiUrl = `https://www.hvakosterstrommen.no/api/v1/prices/${year}/${month}-${targetDay}_${zone}.json`;
+  const apiUrl = `https://www.hvakosterstrommen.no/api/v1/prices/${year}/${month}-${day}_${zone}.json`;
 
   try {
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const response = await fetch(apiUrl); // Hent data fra API
+    const data = await response.json(); // Konverter til JSON
 
+    // Ekstraher priser (øre/kWh) og timer
     const prices = data.map((entry) => Math.round(entry.NOK_per_kWh * 100));
-    const hours = data.map((entry) => entry.time_start.split("T")[1].slice(0, 5)); // Extract hour (HH:MM)
+    const hours = data.map((entry) => entry.time_start.split("T")[1].slice(0, 5)); // Henter timer (HH:MM)
 
-    return { prices, hours };
+    return { prices, hours }; // Returnerer data
   } catch (error) {
-    console.error("Error fetching prices:", error);
-    return { prices: [], hours: [] };
+    console.error("Feil ved henting av priser:", error);
+    throw error; // Kaster feil for håndtering
   }
 }
 
-function createChart(hours, prices) {
-  const ctx = document.getElementById("priceChart").getContext("2d");
+// Tegn linjediagram
+function drawLineChart(div_id, labels, data) {
+  const ctx = document.getElementById(div_id).getContext("2d");
 
-  // Destroy previous chart if it exists
+  // Lag gradient for linjen
+  const gradientStroke = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
+  gradientStroke.addColorStop(0, "#F44336"); // Rød start
+  gradientStroke.addColorStop(1, "#FF5722"); // Oransje slutt
+
+  // Slett gammelt diagram hvis det finnes
   if (chart) {
     chart.destroy();
   }
 
+  // Opprett nytt diagram
   chart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: hours,
+      labels,
       datasets: [
         {
-          label: "Energy Price (øre/kWh)",
-          data: prices,
-          borderColor: "lightgray",
-          backgroundColor: "lightgray",
-          borderWidth: 2,
-          pointRadius: 3, // Smaller, solid points
-          pointBackgroundColor: "lightgray", // Solid color for points
+          label: "Strømpris (øre/kWh)",
+          data,
+          borderColor: gradientStroke,
+          pointBackgroundColor: gradientStroke,
+          pointBorderColor: gradientStroke,
+          pointRadius: 4, // Synlige punkter
+          borderWidth: 3,
+          tension: 0.4, // Glatte kurver
         },
       ],
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
+      maintainAspectRatio: true, // Behold proporsjoner
+      interaction: {
+        mode: "nearest",
+        axis: "x",
+        intersect: false, // Tillat hover langs hele linjen
+      },
       plugins: {
         legend: {
-          labels: {
-            color: "white", // Change legend text color
+          display: false, // Skjul forklaring
+        },
+        tooltip: {
+          callbacks: {
+            title: (tooltipItems) => `Klokkeslett: ${tooltipItems[0].label}`,
+            label: (tooltipItem) => `Pris: ${tooltipItem.raw} øre`,
           },
         },
       },
       scales: {
-        x: {
-          ticks: {
-            color: "white", // Change x-axis tick color
-          },
-        },
         y: {
           ticks: {
-            color: "white", // Change y-axis tick color
-            callback: (value) => `${value} øre`, // Add "øre" to y-axis labels
+            color: "#E0E0E0", // Hovedtekstfarge
+            callback: (value) => `${value} øre`,
+          },
+          grid: {
+            color: "#2C2C2C", // Subtile rutenettlinjer
           },
         },
-      },
-      elements: {
-        line: {
-          tension: 0.3, // Slight smoothing of line
-        },
-        point: {
-          hoverRadius: 0, // Remove hover bubbles
+        x: {
+          ticks: {
+            color: "#B0B0B0", // Sekundærtekstfarge
+          },
+          grid: {
+            display: false, // Skjul rutenettlinjer for x-aksen
+          },
         },
       },
     },
   });
 }
 
-async function updateChart(zone, dayType) {
-  const { prices, hours } = await fetchPrices(zone, dayType);
-  createChart(hours, prices);
-}
-
-// Update the price display
+// Oppdater strømpris og diagram
 async function updatePrice(zone) {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-  const apiUrl = `https://www.hvakosterstrommen.no/api/v1/prices/${year}/${month}-${day}_${zone}.json`;
+  const currentPriceEl = document.getElementById("current-price");
+  const averagePriceEl = document.getElementById("average-price");
+  const zoneNameEl = document.getElementById("zone-name");
 
   try {
-    const response = await fetch(apiUrl);
-    const data = await response.json();
+    const { prices, hours } = await fetchPrices(zone);
 
-    const currentHourPrice = Math.round(data[0]?.NOK_per_kWh * 100) || "N/A";
-    document.getElementById("price").textContent = `Current price: ${currentHourPrice} øre/kWh`;
-  } catch (error) {
-    console.error("Error fetching price:", error);
-    document.getElementById("price").textContent = "Error fetching price.";
+    // Lagre valgt sone i localStorage
+    localStorage.setItem("selectedZone", zone);
+
+    // Oppdater sonenavn
+    const zoneNames = {
+      NO1: "Østlandet (NO1)",
+      NO2: "Sørlandet (NO2)",
+      NO3: "Midt-Norge (NO3)",
+      NO4: "Nord-Norge (NO4)",
+      NO5: "Vestlandet (NO5)",
+    };
+    zoneNameEl.textContent = `Valgt sone: ${zoneNames[zone] || "Ukjent"}`;
+
+    // Beregn nåværende og gjennomsnittlig pris
+    const currentPrice = prices[0];
+    const averagePrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+
+    // Oppdater tekst
+    currentPriceEl.textContent = `Strømpris nå: ${currentPrice} øre/kWh`;
+    averagePriceEl.textContent = `Gjennomsnittpris i dag: ${Math.round(averagePrice)} øre/kWh`;
+
+    // Oppdater diagram
+    drawLineChart("priceChart", hours, prices);
+  } catch {
+    // Feilhåndtering
+    currentPriceEl.textContent = "Feil ved henting av strømpris.";
+    averagePriceEl.textContent = "Feil ved henting av gjennomsnittpris.";
+    zoneNameEl.textContent = "Feil ved henting av sone.";
   }
 }
 
-// Initialize the chart with the default zone and "Today"
-const zoneSelect = document.getElementById("zones");
-const toggleButton = document.getElementById("toggle-button");
-
-let dayType = "Today"; // Default day type
-
-// Update chart and price on zone change
-zoneSelect.addEventListener("change", (event) => {
-  updateChart(event.target.value, dayType);
-  updatePrice(event.target.value);
+// Event listeners for å håndtere modal og sonevalg
+document.getElementById("zone-button").addEventListener("click", () => {
+  document.getElementById("zone-modal").classList.remove("hidden");
 });
 
-// Toggle between "Today" and "Tomorrow"
-toggleButton.addEventListener("click", () => {
-  dayType = dayType === "Today" ? "Tomorrow" : "Today";
-  toggleButton.textContent = `Switch to ${dayType === "Today" ? "Tomorrow" : "Today"}`;
-  updateChart(zoneSelect.value, dayType);
+document.getElementById("close-modal").addEventListener("click", () => {
+  document.getElementById("zone-modal").classList.add("hidden");
 });
 
-// Initial load
-updateChart(zoneSelect.value, dayType);
-updatePrice(zoneSelect.value);
+document.getElementById("zone-list").addEventListener("click", (event) => {
+  const zone = event.target.dataset.zone;
+  if (zone) {
+    document.getElementById("zone-modal").classList.add("hidden");
+    updatePrice(zone); // Oppdater priser og diagram
+  }
+});
+
+// Initialiser: Bruk lagret sone eller standard NO1
+const savedZone = localStorage.getItem("selectedZone") || "NO1";
+updatePrice(savedZone);

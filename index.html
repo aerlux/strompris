@@ -4,30 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Strømpris</title>
-  <link rel="stylesheet" href="styles.css">
-    <link rel="icon" sizes="512x512" href="logo.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="logo.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0F0F0F">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" sizes="512x512" href="logo.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="logo.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0F0F0F">
 </head>
 
-<header id="page-title">Strømpris</header>
-<div id="zone-container" class="container">
+<body>
+  <!-- Header Section -->
+  <header id="page-title">Strømpris</header>
+
+  <!-- Zone Selection and Chart -->
+  <div id="zone-container" class="container">
     <h2 id="zone-name">Velg en sone...</h2>
     <canvas id="priceChart"></canvas>
   </div>
-  <body>
-    <div id="price-container" class="container">
-      <h2 id="current-price">Strømpris nå: Laster...</h2>
-    </div>
 
-    <div id="price-container" class="container">
-        <h3 id="average-price">Gjennomsnittpris i dag: Laster...</h3>
-      </div>
-  
+  <!-- Price Display Section -->
+  <div id="price-container" class="container">
+    <h2 id="current-price">Strømpris nå: Laster...</h2>
+  </div>
+
+  <div id="average-price-container" class="container">
+    <h3 id="average-price">Gjennomsnittpris i dag: Laster...</h3>
+  </div>
+
+  <!-- Zone Button -->
   <button id="zone-button">Velg Sone</button>
 
+  <!-- Modal for Selecting Zone -->
   <div id="zone-modal" class="modal hidden">
     <div class="modal-content">
       <h2>Velg sone</h2>
@@ -41,15 +48,15 @@
       <button id="close-modal">Lukk</button>
     </div>
   </div>
-  
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
+  <!-- Footer -->
   <footer id="footer-text">
-    Made with ❤ in chilly Sandnes  by
+    Made with ❤ in chilly Sandnes by
     <a href="mailto:david.kvindesland+strompris@gmail.com">@DavidKvi</a>
   </footer>
-  
-</body>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="./script.js"></script>
+</body>
 </html>
